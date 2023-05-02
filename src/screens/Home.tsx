@@ -9,10 +9,14 @@ import {
     Image,
     ImageBackground,
     TextInput,
+    Dimensions,
   } from 'react-native';
 import movieData1 from '../json/CONTENTLISTINGPAGE-PAGE1.json';
 import movieData2 from '../json/CONTENTLISTINGPAGE-PAGE2.json';
 import movieData3 from '../json/CONTENTLISTINGPAGE-PAGE3.json';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
   
 function Home() {
     const [movies, setMovies] = useState([]);
@@ -20,6 +24,8 @@ function Home() {
     const [posters, setPosters] = useState([]);
     const [searchTxt, setSearchTxt] = useState('');
     const [visibility, setVisibility] = useState(false);
+
+    var posterimage = require("../assets/images/poster6.jpg"); 
 
     const getMovies = () => {
         const movieDetails = [movieData1].flatMap((item) => {
@@ -30,7 +36,15 @@ function Home() {
             });
         })
         setMovies(movieDetails);
-        setSearchTxt('');
+        
+        // const moviePoster = movieDetails.map((item) => item['poster-image']);
+        // setPosters(moviePoster);
+        
+        
+    }
+
+    const loadMoreData = (index) => {
+        console.log('hi //////////////////////', index.distanceFromEnd);
     }
 
     const getSearchResult = (val : string) => {
@@ -59,7 +73,7 @@ function Home() {
                 <ImageBackground source={require('../assets/images/nav_bar.png')} resizeMode="cover" style={styles.navBar}>
                     {visibility ? 
                         <View style={styles.searchView}>
-                            <TouchableOpacity onPress={()=> {setVisibility(false), getMovies()}}>
+                            <TouchableOpacity onPress={()=> {setVisibility(false), getMovies(), setSearchTxt('')}}>
                                 <Image
                                     style={styles.backIcon}
                                     source={require('../assets/images/Back.png')}
@@ -89,19 +103,28 @@ function Home() {
 
                 <FlatList
                     contentContainerStyle={styles.flatlistContainer}
+                    columnWrapperStyle={styles.flatlistWrapper}  
                     style={styles.flatlist}
                     data={movies}
                     renderItem={({item,index}) => (
-                        <>
-                            <View style={styles.listItem}>
+                        <View style={styles.listItem}>
+                            {/* <Image
+                                style={styles.posterImg}
+                                source={`require('../assets/images/${item['poster-image']}')`}
+                            /> */}
+                            {posterimage !== null ? 
                                 <Image
                                     style={styles.posterImg}
-                                    source={require('../assets/images/poster1.jpg')}
+                                    source={posterimage}
                                 />
-                                <Text style={styles.movieName}>{item.name}</Text>
-                                
-                            </View>
-                        </>
+                            :
+                                <Image
+                                    style={styles.posterImg}
+                                    source={require('../assets/images/placeholder_for_missing_posters.png')}
+                                />
+                            }
+                            <Text style={styles.movieName} numberOfLines={1}>{item.name}</Text>    
+                        </View>
                     )}
                     ListEmptyComponent={
                         <View style={styles.emptyLayout}>
@@ -110,8 +133,9 @@ function Home() {
                             </Text>
                         </View>
                     }
-                    // keyExtractor={(item, index) => JSON.stringify(item)+index}
-                    // numColumns={3}
+                    keyExtractor={(item, index) => JSON.stringify(item)+index}
+                    numColumns={3}
+                    onEndReached={(e) => loadMoreData(e)}
                 />
                 
                 
@@ -172,22 +196,31 @@ const styles = StyleSheet.create({
 
     // Flatlist style open
     flatlistContainer: {
-        // alignItems: 'center',
+        paddingHorizontal: 30,
+    },
+    flatlistWrapper: {
+        justifyContent: 'space-evenly',
     },
     flatlist: {
-        // flexDirection: 'row',
-        // flexWrap: 'wrap',
+        flexWrap: 'wrap',
+        flexDirection: 'column',
+        flex: 1,
     },
     listItem: {
-      margin: 15,
+        marginHorizontal: 30,
+        marginBottom: 30,
     },
     posterImg:{
         borderRadius: 5,
+        width: (windowWidth - 60) / 3,
+        height: 272,
+        resizeMode: 'cover',
     },
     movieName: {
-        flex: 1,
         fontSize: 16,
         color: '#ffffff',
+        width: (windowWidth - 60) / 3,
+        marginTop: 5,
     },
     // Flatlist style close
 
