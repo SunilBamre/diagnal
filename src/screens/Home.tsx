@@ -44,7 +44,7 @@ function Home() {
     }
 
     const loadMoreData = (index) => {
-        console.log('hi //////////////////////', index.distanceFromEnd);
+        console.log('scroll end val **************', index.distanceFromEnd);
     }
 
     const getSearchResult = (val : string) => {
@@ -165,8 +165,8 @@ const styles = StyleSheet.create({
     navBarTitle: {
         color: 'white',
         fontSize: 18,
-        fontWeight: 'bold',
         flex: 1,
+        fontFamily: 'TitilliumWeb-Bold',
     },
     searchIcon: {
         width: 25,
@@ -221,20 +221,24 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         width: (windowWidth - 60) / 3,
         marginTop: 5,
+        fontFamily: 'TitilliumWeb-Regular',
     },
     // Flatlist style close
 
     // Empty result style open
     emptyLayout: {
-        flexDirection: 'column',
+        flexDirection: 'row',
         flex: 1,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     emptyTxt: {
         textAlign: 'center',
         color: 'white',
         fontSize: 20,
         marginTop: 50,
+        fontFamily: 'TitilliumWeb-Bold',
+        width: '100%',
     },
     // Empty result style close
 });
