@@ -140,21 +140,29 @@ function Home() {
                     data={movies}
                     renderItem={({item,index}) => (
                         <View style={styles.listItem}>
-                            {/* Issue with dynamic image path in source attribute when fetching data from local json
-                                <Image
-                                style={styles.posterImg}
-                                source={`require('../assets/images/${item['poster-image']}')`}
-                            /> */}
+                            {/* 
+                                Issue with dynamic image path in source attribute when fetching data from local json
+                                <View style={styles.posterImgView}>
+                                    <Image
+                                        style={styles.posterImg}
+                                        source={`require('../assets/images/${item['poster-image']}')`}
+                                    /> 
+                                </View>
+                            */}
                             {posterimage !== null ? 
-                                <Image
-                                    style={styles.posterImg}
-                                    source={posterimage}
-                                />
+                                <View style={styles.posterImgView}>
+                                    <Image
+                                        style={styles.posterImg}
+                                        source={posterimage}
+                                    />
+                                </View>
                             :
-                                <Image
-                                    style={styles.posterImg}
-                                    source={require('../assets/images/placeholder_for_missing_posters.png')}
-                                />
+                                <View style={styles.posterImgView}>
+                                    <Image
+                                        style={styles.posterImg}
+                                        source={require('../assets/images/placeholder_for_missing_posters.png')}
+                                    />
+                                </View>
                             }
                             <HighlightText
                                 highlightStyle={{ backgroundColor: '#ffe300', color: 'black' }}
@@ -236,29 +244,36 @@ const styles = StyleSheet.create({
 
     // Flatlist style open
     flatlistContainer: {
-        paddingHorizontal: 30,
+        // paddingHorizontal: 15,
+        // marginLeft: -15,
     },
     flatlistWrapper: {
-        justifyContent: 'space-evenly',
+        justifyContent: 'space-between',
     },
     flatlist: {
         flexWrap: 'wrap',
-        flexDirection: 'column',
-        flex: 1,
+        flexDirection: 'row',
+        // flex: 1,
     },
     listItem: {
-        marginHorizontal: 30,
-        marginBottom: 30,
+        marginHorizontal: 10,
+        marginBottom: 20,
+        width: (windowWidth - 60) / 3,
+    },
+    posterImgView: {
+        width: (windowWidth - 60) / 3,
+        height: (windowWidth - 60) / 2,
     },
     posterImg:{
-        width: (windowWidth - 60) / 3,
-        height: 272,
+        height: '100%',
+        width: '100%',
         resizeMode: 'cover',
     },
     movieName: {
         fontSize: 16,
         color: '#ffffff',
-        width: (windowWidth - 60) / 3,
+        // width: (windowWidth - 60) / 3,
+        width: '100%',
         marginTop: 5,
         fontFamily: 'TitilliumWeb-Regular',
     },
