@@ -16,19 +16,24 @@ import movieData2 from '../json/CONTENTLISTINGPAGE-PAGE2.json';
 import movieData3 from '../json/CONTENTLISTINGPAGE-PAGE3.json';
 
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
   
 function Home() {
     const [movies, setMovies] = useState([]);
     const [category, setCategory] = useState('');
-    const [posters, setPosters] = useState([]);
     const [searchTxt, setSearchTxt] = useState('');
     const [visibility, setVisibility] = useState(false);
+    const [loadCount, setLoadCount] = useState(1);
 
     var posterimage = require("../assets/images/poster6.jpg"); 
 
     const getMovies = () => {
-        const movieDetails = [movieData1].flatMap((item) => {
+        let dataArray = [movieData1]
+        if(loadCount == 2){
+            dataArray.push(movieData2);
+        }else if(loadCount == 3){
+            dataArray.push(movieData3);
+        }
+        const movieDetails = dataArray.flatMap((item) => {
             const categoryValue = item.page.title;
             setCategory(categoryValue);
             return item.page["content-items"].content.map((movieItem) => {
@@ -36,15 +41,13 @@ function Home() {
             });
         })
         setMovies(movieDetails);
-        
-        // const moviePoster = movieDetails.map((item) => item['poster-image']);
-        // setPosters(moviePoster);
-        
-        
     }
 
     const loadMoreData = (index) => {
-        console.log('scroll end val **************', index.distanceFromEnd);
+        let incrementer = loadCount + index.distanceFromEnd+1;
+        if(incrementer <= 3){
+            setLoadCount(incrementer);
+        }
     }
 
     const getSearchResult = (val : string) => {
@@ -64,7 +67,7 @@ function Home() {
 
     useEffect(() => {
         getMovies();
-    },[]);
+    },[loadCount]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -86,6 +89,7 @@ function Home() {
                                 placeholder='Search by name'
                                 placeholderTextColor='white'
                                 autoFocus={true}
+                                selectionColor={'#ffe300'}
                             />
                         </View>
                     :
@@ -108,7 +112,8 @@ function Home() {
                     data={movies}
                     renderItem={({item,index}) => (
                         <View style={styles.listItem}>
-                            {/* <Image
+                            {/* Issue with dynamic image path in source attribute when fetching data from local json
+                                <Image
                                 style={styles.posterImg}
                                 source={`require('../assets/images/${item['poster-image']}')`}
                             /> */}
