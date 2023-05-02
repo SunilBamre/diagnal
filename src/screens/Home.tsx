@@ -10,6 +10,7 @@ import {
     ImageBackground,
     TextInput,
     Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 import HighlightText from '@sanar/react-native-highlight-text';
 
@@ -19,6 +20,7 @@ import movieData2 from '../json/CONTENTLISTINGPAGE-PAGE2.json';
 import movieData3 from '../json/CONTENTLISTINGPAGE-PAGE3.json';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
   
 function Home() {
 
@@ -27,20 +29,22 @@ function Home() {
     const [category, setCategory] = useState('');
     const [searchTxt, setSearchTxt] = useState('');
     const [highlight, setHighlight] = useState([]);
-    const [visibility, setVisibility] = useState(false);
+    const [searchActive, setSearchActive] = useState(false);
     const [loadCount, setLoadCount] = useState(1);
+    const [loaderActive, setLoaderActive] = useState(true);
+    
 
     let posterimage = require("../assets/images/poster6.jpg"); 
 
     {/* Fetching movies function open */} 
     const getMovies = () => {
-        let dataArray = [movieData1]
+        let moviesArray = [movieData1]
         if(loadCount == 2){
-            dataArray.push(movieData2);
+            moviesArray.push(movieData2);
         }else if(loadCount == 3){
-            dataArray.push(movieData3);
+            moviesArray.push(movieData3);
         }
-        const movieDetails = dataArray.flatMap((item) => {
+        const movieDetails = moviesArray.flatMap((item) => {
             const categoryValue = item.page.title;
             setCategory(categoryValue);
             return item.page["content-items"].content.map((movieItem) => {
@@ -48,6 +52,7 @@ function Home() {
             });
         })
         setMovies(movieDetails);
+        setLoaderActive(false);
     }
     {/* Fetching movies function close */}
 
@@ -83,7 +88,7 @@ function Home() {
 
     {/* Handling back function open */}
     const backToSearch = () => {
-        setVisibility(false);
+        setSearchActive(false);
         setSearchTxt(''); 
         setHighlight([]);
         getMovies(); 
@@ -99,7 +104,7 @@ function Home() {
             <>
                 {/* Navbar open */}
                 <ImageBackground source={require('../assets/images/nav_bar.png')} resizeMode="cover" style={styles.navBar}>
-                    {visibility ? 
+                    {searchActive ? 
                         <View style={styles.searchView}>
                             <TouchableOpacity onPress={backToSearch}>
                                 <Image
@@ -121,7 +126,7 @@ function Home() {
                     :
                         <View style={styles.navBarView}>
                             <Text style={styles.navBarTitle} numberOfLines={1}>{category}</Text>
-                            <TouchableOpacity onPress={()=> setVisibility(true)}>
+                            <TouchableOpacity onPress={()=> setSearchActive(true)}>
                                 <Image
                                     style={styles.searchIcon}
                                     source={require('../assets/images/search.png')}
@@ -132,58 +137,67 @@ function Home() {
                 </ImageBackground>
                 {/* Navbar close */}
 
-                {/* Movies list open */}    
-                <FlatList
-                    contentContainerStyle={styles.flatlistContainer}
-                    columnWrapperStyle={styles.flatlistWrapper}  
-                    style={styles.flatlist}
-                    data={movies}
-                    renderItem={({item,index}) => (
-                        <View style={styles.listItem}>
-                            {/* 
-                                Issue with dynamic image path in source attribute when fetching data from local json
-                                <View style={styles.posterImgView}>
-                                    <Image
-                                        style={styles.posterImg}
-                                        source={`require('../assets/images/${item['poster-image']}')`}
-                                    /> 
-                                </View>
-                            */}
-                            {posterimage !== null ? 
-                                <View style={styles.posterImgView}>
-                                    <Image
-                                        style={styles.posterImg}
-                                        source={posterimage}
-                                    />
-                                </View>
-                            :
-                                <View style={styles.posterImgView}>
-                                    <Image
-                                        style={styles.posterImg}
-                                        source={require('../assets/images/placeholder_for_missing_posters.png')}
-                                    />
+                {/* Movies list open */} 
+                {loaderActive ? 
+                        <View style={styles.loaderView}>
+                            <View>
+                                <ActivityIndicator size="large" color="#ffe300" />
+                                <Text style={styles.loaderTxt}>Loading Movies</Text>
+                            </View>
+                        </View>   
+                    :
+                        <FlatList
+                            contentContainerStyle={styles.flatlistContainer}
+                            columnWrapperStyle={styles.flatlistWrapper}  
+                            style={styles.flatlist}
+                            data={movies}
+                            renderItem={({item,index}) => (
+                                    <View style={styles.listItem}>
+                                        {/* 
+                                            Issue with dynamic image path in source attribute when fetching data from local json
+                                            <View style={styles.posterImgView}>
+                                                <Image
+                                                    style={styles.posterImg}
+                                                    source={`require('../assets/images/${item['poster-image']}')`}
+                                                /> 
+                                            </View>
+                                        */}
+                                        {posterimage !== null ? 
+                                            <View style={styles.posterImgView}>
+                                                <Image
+                                                    style={styles.posterImg}
+                                                    source={posterimage}
+                                                />
+                                            </View>
+                                        :
+                                            <View style={styles.posterImgView}>
+                                                <Image
+                                                    style={styles.posterImg}
+                                                    source={require('../assets/images/placeholder_for_missing_posters.png')}
+                                                />
+                                            </View>
+                                        }
+                                        <HighlightText
+                                            highlightStyle={{ backgroundColor: '#ffe300', color: 'black' }}
+                                            searchWords={highlight}
+                                            textToHighlight={item.name}
+                                            style={styles.movieName}
+                                            numberOfLines={1}
+                                        />
+                                    </View>
+                            )}
+                            ListEmptyComponent={
+                                <View style={styles.emptyLayout}>
+                                    <Text style={styles.emptyTxt}>
+                                        No Result Found
+                                    </Text>
                                 </View>
                             }
-                            <HighlightText
-                                highlightStyle={{ backgroundColor: '#ffe300', color: 'black' }}
-                                searchWords={highlight}
-                                textToHighlight={item.name}
-                                style={styles.movieName}
-                                numberOfLines={1}
-                            />
-                        </View>
-                    )}
-                    ListEmptyComponent={
-                        <View style={styles.emptyLayout}>
-                            <Text style={styles.emptyTxt}>
-                                No Result Found
-                            </Text>
-                        </View>
-                    }
-                    keyExtractor={(item, index) => JSON.stringify(item)+index}
-                    numColumns={3}
-                    onEndReached={(e) => loadMoreData(e)}
-                />
+                            keyExtractor={(item, index) => JSON.stringify(item)+index}
+                            numColumns={3}
+                            onEndReached={(e) => loadMoreData(e)}
+                        />
+                }
                 {/* Movies list close */} 
             </>
         </SafeAreaView>
@@ -248,7 +262,8 @@ const styles = StyleSheet.create({
         // marginLeft: -15,
     },
     flatlistWrapper: {
-        justifyContent: 'space-between',
+        // justifyContent: 'center',
+        // width: '100%',
     },
     flatlist: {
         flexWrap: 'wrap',
@@ -285,6 +300,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        width: windowWidth,
     },
     emptyTxt: {
         textAlign: 'center',
@@ -292,9 +308,27 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginTop: 50,
         fontFamily: 'TitilliumWeb-Bold',
-        width: '100%',
+        width: windowWidth,
     },
     // Empty result style close
+
+    // Loader style open 
+    loaderView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingBottom: 15,
+        width: windowWidth,
+        height: windowHeight-72,
+    },
+    loaderTxt: {
+        fontSize: 18,
+        fontFamily: 'TitilliumWeb-Bold',
+        color: 'white',
+        textAlign: 'center',
+        marginTop: 15,
+    },
+    // Loader style close
 });
  
 export default Home;
