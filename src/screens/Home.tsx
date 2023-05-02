@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     navBarView: {
-        backgroundColor: 'transparent',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -197,6 +196,7 @@ const styles = StyleSheet.create({
     // Flatlist style open
     flatlistContainer: {
         paddingHorizontal: 30,
+        // marginTop: -15,
     },
     flatlistWrapper: {
         justifyContent: 'space-evenly',
