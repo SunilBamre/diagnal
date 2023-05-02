@@ -10,7 +10,10 @@ import {
     ImageBackground,
     TextInput,
     Dimensions,
-  } from 'react-native';
+} from 'react-native';
+import HighlightText from '@sanar/react-native-highlight-text';
+
+// Importing json data
 import movieData1 from '../json/CONTENTLISTINGPAGE-PAGE1.json';
 import movieData2 from '../json/CONTENTLISTINGPAGE-PAGE2.json';
 import movieData3 from '../json/CONTENTLISTINGPAGE-PAGE3.json';
@@ -18,14 +21,18 @@ import movieData3 from '../json/CONTENTLISTINGPAGE-PAGE3.json';
 const windowWidth = Dimensions.get('window').width;
   
 function Home() {
+
+    // Initializing state values
     const [movies, setMovies] = useState([]);
     const [category, setCategory] = useState('');
     const [searchTxt, setSearchTxt] = useState('');
+    const [highlight, setHighlight] = useState([]);
     const [visibility, setVisibility] = useState(false);
     const [loadCount, setLoadCount] = useState(1);
 
-    var posterimage = require("../assets/images/poster6.jpg"); 
+    let posterimage = require("../assets/images/poster6.jpg"); 
 
+    {/* Fetching movies function open */} 
     const getMovies = () => {
         let dataArray = [movieData1]
         if(loadCount == 2){
@@ -42,14 +49,18 @@ function Home() {
         })
         setMovies(movieDetails);
     }
+    {/* Fetching movies function close */}
 
+    {/* Load more movies function open */}
     const loadMoreData = (index) => {
         let incrementer = loadCount + index.distanceFromEnd+1;
         if(incrementer <= 3){
             setLoadCount(incrementer);
         }
     }
+    {/* Load more movies function close */}
 
+    {/* Search movies function open */}
     const getSearchResult = (val : string) => {
         if(val.length !== 0){
             const searchkeyword = val.toLowerCase();
@@ -59,11 +70,25 @@ function Home() {
             })
             setSearchTxt(val);
             setMovies(result);
+            const hilightKeywords = [];
+            hilightKeywords.push(searchkeyword);
+            setHighlight(hilightKeywords);
         }else{
             setSearchTxt('');
+            setHighlight([]);
             getMovies();
         }
     }
+    {/* Search movies function close */}
+
+    {/* Handling back function open */}
+    const backToSearch = () => {
+        setVisibility(false);
+        setSearchTxt(''); 
+        setHighlight([]);
+        getMovies(); 
+    }
+    {/* Handling back function close */}
 
     useEffect(() => {
         getMovies();
@@ -72,11 +97,11 @@ function Home() {
     return (
         <SafeAreaView style={styles.container}>
             <>
-               
+                {/* Navbar open */}
                 <ImageBackground source={require('../assets/images/nav_bar.png')} resizeMode="cover" style={styles.navBar}>
                     {visibility ? 
                         <View style={styles.searchView}>
-                            <TouchableOpacity onPress={()=> {setVisibility(false), getMovies(), setSearchTxt('')}}>
+                            <TouchableOpacity onPress={backToSearch}>
                                 <Image
                                     style={styles.backIcon}
                                     source={require('../assets/images/Back.png')}
@@ -90,11 +115,12 @@ function Home() {
                                 placeholderTextColor='white'
                                 autoFocus={true}
                                 selectionColor={'#ffe300'}
+                                maxLength={30}
                             />
                         </View>
                     :
                         <View style={styles.navBarView}>
-                            <Text style={styles.navBarTitle}>{category}</Text>
+                            <Text style={styles.navBarTitle} numberOfLines={1}>{category}</Text>
                             <TouchableOpacity onPress={()=> setVisibility(true)}>
                                 <Image
                                     style={styles.searchIcon}
@@ -104,7 +130,9 @@ function Home() {
                         </View>
                     }
                 </ImageBackground>
+                {/* Navbar close */}
 
+                {/* Movies list open */}    
                 <FlatList
                     contentContainerStyle={styles.flatlistContainer}
                     columnWrapperStyle={styles.flatlistWrapper}  
@@ -128,7 +156,13 @@ function Home() {
                                     source={require('../assets/images/placeholder_for_missing_posters.png')}
                                 />
                             }
-                            <Text style={styles.movieName} numberOfLines={1}>{item.name}</Text>    
+                            <HighlightText
+                                highlightStyle={{ backgroundColor: '#ffe300', color: 'black' }}
+                                searchWords={highlight}
+                                textToHighlight={item.name}
+                                style={styles.movieName}
+                                numberOfLines={1}
+                            />
                         </View>
                     )}
                     ListEmptyComponent={
@@ -142,8 +176,7 @@ function Home() {
                     numColumns={3}
                     onEndReached={(e) => loadMoreData(e)}
                 />
-                
-                
+                {/* Movies list close */} 
             </>
         </SafeAreaView>
     );
@@ -171,6 +204,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         flex: 1,
         fontFamily: 'TitilliumWeb-Bold',
+        paddingRight:15,
     },
     searchIcon: {
         width: 25,
@@ -203,7 +237,6 @@ const styles = StyleSheet.create({
     // Flatlist style open
     flatlistContainer: {
         paddingHorizontal: 30,
-        // marginTop: -15,
     },
     flatlistWrapper: {
         justifyContent: 'space-evenly',
@@ -218,7 +251,6 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     posterImg:{
-        borderRadius: 5,
         width: (windowWidth - 60) / 3,
         height: 272,
         resizeMode: 'cover',
