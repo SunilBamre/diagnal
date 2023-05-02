@@ -187,14 +187,16 @@ const styles = StyleSheet.create({
     backIcon: {
         width: 25,
         height: 25,
+        marginRight: 15,
     },
     inputBox: {
         width: '100%',
-        borderWidth: 1,
-        padding: 10,
+        borderWidth: 0,
+        padding: 0,
         color: 'white',
         fontSize: 16,
-        paddingRight:15,
+        height: 25,
+        flex: 1,
     },
     // Search box style close
 
