@@ -23,27 +23,22 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
   
 function Home() {
+    let posterimage = require("../assets/images/poster6.jpg"); 
+    let jsonArray = [movieData1,movieData2,movieData3];
 
     // Initializing state values
     const [movies, setMovies] = useState([]);
+    const [moviesArray, setMoviesArray] = useState([jsonArray[0]]);
     const [category, setCategory] = useState('');
     const [searchTxt, setSearchTxt] = useState('');
     const [highlight, setHighlight] = useState([]);
     const [searchActive, setSearchActive] = useState(false);
-    const [loadCount, setLoadCount] = useState(1);
+    const [loadCount, setLoadCount] = useState(0);
     const [loaderActive, setLoaderActive] = useState(true);
     
 
-    let posterimage = require("../assets/images/poster6.jpg"); 
-
     {/* Fetching movies function open */} 
     const getMovies = () => {
-        let moviesArray = [movieData1]
-        if(loadCount == 2){
-            moviesArray.push(movieData2);
-        }else if(loadCount == 3){
-            moviesArray.push(movieData3);
-        }
         const movieDetails = moviesArray.flatMap((item) => {
             const categoryValue = item.page.title;
             setCategory(categoryValue);
@@ -57,10 +52,14 @@ function Home() {
     {/* Fetching movies function close */}
 
     {/* Load more movies function open */}
-    const loadMoreData = (index) => {
-        let incrementer = loadCount + index.distanceFromEnd+1;
-        if(incrementer <= 3){
-            setLoadCount(incrementer);
+    const loadMoreData = () => {
+        let counter = loadCount + 1;
+        if(counter < jsonArray.length && searchActive == false){
+            setLoadCount(counter);
+            const movieInfo = jsonArray.map((item) => {
+                return item;
+            })
+            setMoviesArray(movieInfo);
         }
     }
     {/* Load more movies function close */}
@@ -147,8 +146,6 @@ function Home() {
                         </View>   
                     :
                         <FlatList
-                            contentContainerStyle={styles.flatlistContainer}
-                            columnWrapperStyle={styles.flatlistWrapper}  
                             style={styles.flatlist}
                             data={movies}
                             renderItem={({item,index}) => (
@@ -195,7 +192,8 @@ function Home() {
                             }
                             keyExtractor={(item, index) => JSON.stringify(item)+index}
                             numColumns={3}
-                            onEndReached={(e) => loadMoreData(e)}
+                            onEndReached={loadMoreData}
+                            onEndReachedThreshold={0.5}
                         />
                 }
                 {/* Movies list close */} 
@@ -257,18 +255,9 @@ const styles = StyleSheet.create({
     // Search box style close
 
     // Flatlist style open
-    flatlistContainer: {
-        // paddingHorizontal: 15,
-        // marginLeft: -15,
-    },
-    flatlistWrapper: {
-        // justifyContent: 'center',
-        // width: '100%',
-    },
     flatlist: {
         flexWrap: 'wrap',
         flexDirection: 'row',
-        // flex: 1,
     },
     listItem: {
         marginHorizontal: 10,
@@ -287,7 +276,6 @@ const styles = StyleSheet.create({
     movieName: {
         fontSize: 16,
         color: '#ffffff',
-        // width: (windowWidth - 60) / 3,
         width: '100%',
         marginTop: 5,
         fontFamily: 'TitilliumWeb-Regular',
